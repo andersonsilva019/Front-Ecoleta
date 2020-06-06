@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ChangeEvent } from 'react';
+import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import { Map, TileLayer, Marker } from 'react-leaflet';
 import { LeafletMouseEvent } from 'leaflet'
 import axios from 'axios'
@@ -32,8 +32,15 @@ const CreatePoint = () => {
 
   const [initialPosition, setInitialPosition] = useState<[number, number]>([0 , 0]);
 
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    whatsapp: '',
+  });
+
   const [selectedUf, setSelectedUf] = useState('0');
   const [selectedCity, setSelectedCity] = useState('0');
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [selectedPosition, setSelectedPosition] = useState<[number, number]>([0 , 0]);
 
   useEffect(() => {
@@ -91,6 +98,52 @@ const CreatePoint = () => {
     ])
   }
 
+  function handleInputChange(event: ChangeEvent<HTMLInputElement>){
+    const { name, value } = event.target;
+
+    setFormData({ ...formData, [name]: value });
+  }
+
+  function handleSelectItem(id: number){
+
+    const areadSelected = selectedItems.findIndex(item => item === id);
+
+    if(areadSelected >= 0){
+      const filteredItems = selectedItems.filter(item => item !== id);
+      setSelectedItems(filteredItems);
+    } else {
+      setSelectedItems([...selectedItems, id]);
+    }
+
+  }
+
+  async function handleSubmit(event: FormEvent){
+    event.preventDefault();
+
+    const { name, email, whatsapp } = formData;
+    const uf = selectedUf;
+    const city = selectedCity;
+    const [latitude, longitude] = selectedPosition;
+    const items = selectedItems;
+
+    const data = {
+      name,
+      email,
+      whatsapp,
+      uf,
+      city,
+      latitude,
+      longitude,
+      items
+    }
+
+    await api.post('points', data);
+
+    alert('Ponto de coleta cadastrado com sucesso');
+
+    
+  }
+
   return(
     <div id="page-create-point">
       <header>
@@ -102,7 +155,7 @@ const CreatePoint = () => {
         </Link>
       </header>
 
-      <form>
+      <form onSubmit={handleSubmit}>
         <h1>Cadastro do <br/> ponto de coleta</h1>
 
         {/* Conjunto de campos */}
@@ -188,7 +241,11 @@ const CreatePoint = () => {
 
           <ul className="items-grid">
             { items.map(item => (
-              <li className="selected" key={item.id}>
+              <li 
+                className={selectedItems.includes(item.id) ? 'selected' : ''} 
+                key={item.id} 
+                onClick={() => handleSelectItem(item.id)}
+              >
                 <img src={item.image_url} alt={item.title}/>
                 <span>{item.title}</span>
               </li>
