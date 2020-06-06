@@ -141,7 +141,7 @@ const CreatePoint = () => {
 
     alert('Ponto de coleta cadastrado com sucesso');
 
-    
+
   }
 
   return(
@@ -171,6 +171,7 @@ const CreatePoint = () => {
               type="text"
               name="name"
               id="name"
+              onChange={handleInputChange}
             />
           </div>
           <div className="field-group">
@@ -180,6 +181,7 @@ const CreatePoint = () => {
                 type="email"
                 name="email"
                 id="email"
+                onChange={handleInputChange}
               />
             </div>
 
@@ -189,6 +191,7 @@ const CreatePoint = () => {
                 type="text"
                 name="whatsapp"
                 id="whatsapp"
+                onChange={handleInputChange}
               />
             </div>
           </div>
